@@ -6,7 +6,7 @@ import { galleryItems } from './gallery-items';
 
 const gallery = document.querySelector('.gallery');
 
-const genLiItem = ({ preview, original, description }) =>
+const photoGen = ({ preview, original, description }) =>
   `<li class="gallery__item">
   <a class="gallery__link" href="${original}">
   <img class="gallery__image" src="${preview}" alt="${description}" />
@@ -14,7 +14,7 @@ const genLiItem = ({ preview, original, description }) =>
   </li>
 `;
 
-const getImages = img => img.map(item => genLiItem(item)).join('');
+const getImages = img => img.map(item => photoGen(item)).join('');
 gallery.innerHTML = getImages(galleryItems);
 gallery.addEventListener('click', onClickGallery);
 
