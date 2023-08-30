@@ -1,56 +1,19 @@
 import Player from '@vimeo/player';
 import throttle from 'lodash.throttle';
 
+const TIME_KEY = 'videoplayer-current-time';
+
 const iframe = document.querySelector('iframe');
 const player = new Player(iframe);
 
-player.on('play', function () {
-  console.log('played the video!');
-});
+const onPlay = playTime => {
+  const { seconds } = playTime;
+  localStorage.setItem(TIME_KEY, seconds);
+  console.log(`Video current time is ${seconds} seconds.`);
+};
 
-player.getVideoTitle().then(function (title) {
-  console.log('title:', title);
-});
+const currentTime = localStorage.getItem(TIME_KEY);
 
-const LOCALSTORAGE_KEY = 'videoplayer-current-time';
-updateOutput();
+currentTime ? player.setCurrentTime(currentTime) : null;
 
-player.on(
-  'timeupdate',
-  throttle(function (data) {
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(data.seconds));
-  }, 1000)
-);
-
-function updateOutput() {
-  try {
-    const parsedSettings = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY));
-    if (parsedSettings > 570) {
-      parsedSettings = 0;
-    }
-    player.setCurrentTime(parsedSettings);
-  } catch {}
-}
-
-player
-  .addCuePoint(15, {
-    customKey: 'customValue',
-  })
-  .then(function (id) {
-    // cue point was added successfully
-  })
-  .catch(function (error) {
-    switch (error.name) {
-      case 'UnsupportedError':
-        // cue points are not supported with the current player or browser
-        break;
-
-      case 'RangeError':
-        // the time was less than 0 or greater than the video’s duration
-        break;
-
-      default:
-        // some other error occurred
-        break;
-    }
-  });
+player.on('timeupdate', throttle(onPlay, 1000));
